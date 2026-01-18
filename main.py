@@ -1,4 +1,5 @@
-from fastapi import FastAPI,Request,HTTPException,status
+from typing import Annotated
+from fastapi import FastAPI,Request,HTTPException,status,Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse
@@ -6,10 +7,19 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from schemas import PostCreate,PostResponse
+from sqlalchemy import Select
+from sqlalchemy.orm import Session
+import models
+from database import Base,engine,get_db
+
+# Before our app started we need to create our database table
+
+Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI()
 app.mount("/static",StaticFiles(directory="static"),name="static")
+app.mount("/media",StaticFiles(directory="media"),name="media")
 templates = Jinja2Templates(directory="templates")
 
 posts: list[dict] = [
